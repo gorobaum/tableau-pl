@@ -45,7 +45,7 @@ function [ind, x, B, indb] = runsimplex(A,b,c,indbase,m,n,print)
   stop = false
   while (!stop)
     j = 2
-    while ( A(j,1) > 0.0 )
+    while ( A(j,1) > 0.0 && j < length(A(:,1)))
       j++
     endwhile
     if ( j == length(A(:,1)) )
