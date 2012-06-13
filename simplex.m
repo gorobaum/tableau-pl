@@ -21,11 +21,6 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     auxc(j) = 1.0
   endfor
 
-    
-  [ind, x, B] = phase1simplex(auxA,auxb,auxc,indbase,m,n,print)
-endfunction
-
-function [ind, x, B] = phase1simplex(A,b,c,indbase,m,n,print)
   I = eye(m)
   auxA = [auxA,I]
   auxA = [auxb',A]
@@ -34,28 +29,55 @@ function [ind, x, B] = phase1simplex(A,b,c,indbase,m,n,print)
     auxc = c(i) - auxc()
   endfor
   auxA = [auxc;auxA]
+    
+  [ind, x, B, indb] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print)
+  if (ind == -1 )
+    ind = 1
+  else
+    B = B(:,1:n)
+    [ind, x, B] = runsimplex(B,b,c,indb,m,n,print)
+  endif
+endfunction
+
+function [ind, x, B, indb] = runsimplex(A,b,c,indbase,m,n,print)
   
   stop = false
   while (!stop)
     j = 2
-    while ( auxA(j,1) > 0.0 )
+    while ( A(j,1) > 0.0 )
       j++
     endwhile
-    if ( j == length(auxA(:,1)) )
+    if ( j == length(A(:,1)) )
       stop = true
+      ind = 0
     else
-      u = auxA(:,j)
+      u = A(:,j)
       ratio = inf
+      l = 2
       for i = 2:length(u)
-        if ( u(i) > 0.0 && u(i)/auxA(i,j) < ratio )
-          ratio = u(i)/auxA(i,j)
+        if ( u(i) > 0.0 && u(i)/A(i,j) < ratio )
+          ratio = u(i)/A(i,j)
+          l = i
+        endif
       endfor
       if ( ratio == inf )
         stop = true
+        ind = -1
+      else
+        indbase(l) = j
+        for i = 1:length(A(:,j))
+          if ( i == l )
+            A(i,:) /= A(l,j)
+          else
+            A(i,:) -= (A(i,j)/A(l,j))*A(l,:)
+          endif
+        endfor
       endif
     endif
   endwhile
-
+  B = A
+  x = A(2:m,1)
+  indb = indbase
 endfunction
 
 function ret = base(vec, b)
