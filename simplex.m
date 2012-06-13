@@ -6,35 +6,36 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
   for i = 1:m
     if ( b(i) < 0.0 )
       auxb(i) = -b(i)
-      auxA(:,i) = -A(:,i)
+      auxA(i,:) = -A(i,:)
     else
       auxb(i) = b(i)
-      auxA(:,i) = A(:,i)
+      auxA(i,:) = A(i,:)
     endif
   endfor
   for i = 1:n
-    indbase = 0
     auxc(i) = 0.0
   endfor
-  for j = 1:m
-    indbase = 1
+  for j = (i+1):m+n
+    indbase(j-i) = j
     auxc(j) = 1.0
   endfor
 
   I = eye(m)
   auxA = [auxA,I]
-  auxA = [auxb',A]
-  auxc(1) = -(base(c,indbase))'*b
-  for i = 2:m+n
-    auxc = c(i) - auxc()
+  auxA = [auxb',auxA]
+  auxc(1) = -(base(auxc,indbase))'*b
+  for i = 2:m+n+1
+    auxc(i) = auxc(i-1) - auxc(1)
   endfor
   auxA = [auxc;auxA]
-    
+  
+  disp("Fase 1")
   [ind, x, B, indb] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print)
   if (ind == -1 )
     ind = 1
   else
     B = B(:,1:n)
+    disp("Fase 2")
     [ind, x, B] = runsimplex(B,b,c,indb,m,n,print)
   endif
 endfunction
@@ -76,7 +77,7 @@ function [ind, x, B, indb] = runsimplex(A,b,c,indbase,m,n,print)
     endif
   endwhile
   B = A
-  x = A(2:m,1)
+  x = A(2:m+1,1)
   indb = indbase
 endfunction
 
