@@ -34,6 +34,27 @@ function [ind, x, B] = phase1simplex(A,b,c,indbase,m,n,print)
     auxc = c(i) - auxc()
   endfor
   auxA = [auxc;auxA]
+  
+  stop = false
+  while (!stop)
+    j = 2
+    while ( auxA(j,1) > 0.0 )
+      j++
+    endwhile
+    if ( j == length(auxA(:,1)) )
+      stop = true
+    else
+      u = auxA(:,j)
+      ratio = inf
+      for i = 2:length(u)
+        if ( u(i) > 0.0 && u(i)/auxA(i,j) < ratio )
+          ratio = u(i)/auxA(i,j)
+      endfor
+      if ( ratio == inf )
+        stop = true
+      endif
+    endif
+  endwhile
 
 endfunction
 
