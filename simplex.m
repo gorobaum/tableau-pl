@@ -84,6 +84,16 @@ function [ind, x, B, indb] = runsimplex(A,b,c,indbase,m,n,print)
   indb = indbase
 endfunction
 
+function B = removeslackformbase(A,m,n,indbase)
+  B = A
+  for i = 1:m
+    for j = m+1:m+n
+      if (indbase(i) == j )
+      endif
+    endfor
+  endfor
+endfunction
+
 function ret = base(vec, b)
   j = 1;
   ret = [];
