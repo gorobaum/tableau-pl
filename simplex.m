@@ -1,5 +1,5 @@
 function [ind, x] = simplex(A,b,c,m,n,print)
-  [ind, x] = preparesimplex(A,b,c,m,n,print)
+  [ind, x] = preparesimplex(A,b,c,m,n,print);
 endfunction
 
 function [ind, x] = preparesimplex(A,b,c,m,n,print)
@@ -13,7 +13,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
       auxA(i,:) = A(i,:);
     endif
   endfor
-  cf1 = [] ;
+  cf1 = [];
   for i = 1:n
     cf1 = [cf1;0.0];
   endfor
@@ -29,39 +29,82 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
   auxA = [auxb,auxA];
   auxA = [auxc;auxA];
   
-  disp("Fase 1")
-  [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print)
+  disp("\nSimplex: Fase 1\n")
+  [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
   B = B(:,1:n+1);
-  [B, indb, m] = removeslackformbase(B,m,n,indb)
-  if (ind == -1 )
+  [B, indb, m] = removeslackformbase(B,m,n,indb);
+  if (ind == -1 || B(1,1) > 0.0)
     ind = 1;
   else
-    disp("Fase 2")
-    auxc(1) = -(base(c,indb))'*B(2:m+1,1)
-    auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)]
-    B(1,:) = auxc
-    disp("Phase 2 hativaaa")
-    [ind, x, B] = runsimplex(B,b,c,indb,m,n,print)
+    disp("\nSimplex: Fase 2\n")
+    auxc(1) = -(base(c,indb))'*B(2:m+1,1);
+    auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
+    B(1,:) = auxc;
+    [ind, x, B] = runsimplex(B,b,c,indb,m,n,print);
   endif
 endfunction
 
+function iteration(B,indbase,j,l,iter,m,n)
+  printf ("\nIteração %d\n",iter);
+  printf ("\n");
+  printf ("\t");
+  for i = 1:n
+    printf ("|x%d\t", i);  
+  endfor
+  printf ("\n");
+  aux = printf ("%.3f", B(1,1));
+  if ( aux < 8 ) 
+    printf ("\t");
+  endif
+  for i = 2:length(B(1,:))
+    aux = printf ("|%.3f", B(1,i));
+    if ( aux < 8 ) 
+      printf ("\t");
+    endif
+  endfor
+  printf ("\n");
+  for i = 1:8*(n+1)
+    printf("-");
+  endfor
+  for k = 2:length(B(:,1))
+    printf ("\n");
+    printf ("%.3f", B(k,1));
+    if ( aux < 8 ) 
+      printf ("\t");
+    endif
+    for i = 2:length(B(1,:))
+      if ( k == l && i == j )
+        aux = printf ("|%.3f*", B(k,i));
+        if ( aux < 8 ) 
+          printf ("\t");
+        endif
+      else
+        aux = printf ("|%.3f", B(k,i));
+        if ( aux < 8 ) 
+          printf ("\t");
+        endif
+      endif
+    endfor
+  endfor
+  printf ("\n");
+endfunction
+
 function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
-  
-  stop = false
+  iter = 0;
+  stop = false;
   while (!stop)
-    disp("Novo passo")
-    A;
+    iter++;
     j = 2;
     m = inm;
     while ( j <= length(A(1,:)) && A(1,j) >= 0.0 )
       j++;
     endwhile
     if ( j == length(A(1,:))+1 )
-      stop = true
-      ind = 0
+      stop = true;
+      ind = 0;
     else
-      j
-      u = A(:,j)
+      j;
+      u = A(:,j);
       ratio = inf;
       for i = 2:length(u)
         if ( u(i) > 0.0 && ratio > A(i,1)/u(i) )
@@ -70,10 +113,11 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
         endif
       endfor
       if ( i == length(u)+1 && ratio == inf)
-        stop = true
-        ind = -1
+        stop = true;
+        ind = -1;
       else
-        indbase(l-1) = j-1
+        indbase(l-1) = j-1;
+        iteration(A,indbase,j,l,iter,m,n);
         for i = 1:length(u)
           if ( i != l && u(i) != 0.0 )
             A(i,:) -= (u(i)/u(l))*A(l,:);
@@ -83,18 +127,15 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
       endif
     endif
   endwhile
-  disp("Final do simplex")
   indb = indbase;
   x = A(2:m+1,1);
   B = A;
 endfunction
 
 function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
-  disp("Retirada da base")
-  B = A
-  ind = indbase
-  length(indbase)
-  m = inm
+  B = A;
+  ind = indbase;
+  m = inm;
   for i = 2:m
     for j = m+1:m+n
       if (indbase(i-1) == j )
@@ -103,7 +144,6 @@ function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
           k++;
         endwhile
         if ( k == length(A(i+1,:))+1 )
-          i
           B = [B(1:i-1,:);B(i+1:m+1,:)];
           ind = [ind(1:i-2),ind(i:m)];
           m--;
@@ -112,7 +152,6 @@ function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
       endif
     endfor
   endfor
-  disp("Fim da retirada")
 endfunction
 
 function ret = base(vec, b)
