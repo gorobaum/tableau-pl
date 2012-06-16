@@ -65,11 +65,12 @@ endfunction
 function iteration(B,indbase,j,l,iter,m,n)
   printf ("\nIteração %d\n",iter);
   printf ("\n");
-  printf ("\t");
+  printf ("\t\t");
   for i = 1:n
     printf ("|x%d\t", i);  
   endfor
   printf ("\n");
+  printf ("\t");
   aux = printf ("%.3f", B(1,1));
   if ( aux < 8 ) 
     printf ("\t");
@@ -81,11 +82,15 @@ function iteration(B,indbase,j,l,iter,m,n)
     endif
   endfor
   printf ("\n");
+  printf ("\t");
   for i = 1:8*(n+1)
     printf("-");
   endfor
+  z = 1;
   for k = 2:length(B(:,1))
     printf ("\n");
+    printf ("x%d\t", indbase(z));
+    z++;
     printf ("%.3f", B(k,1));
     if ( aux < 8 ) 
       printf ("\t");
@@ -148,6 +153,7 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
   indb = indbase;
   x = A(2:m+1,1);
   B = A;
+  iteration(A,indbase,j,l,iter,m,n);
 endfunction
 
 function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
