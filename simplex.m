@@ -40,8 +40,26 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     auxc(1) = -(base(c,indb))'*B(2:m+1,1);
     auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
     B(1,:) = auxc;
-    [ind, x, B] = runsimplex(B,b,c,indb,m,n,print);
+    [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
   endif
+  printf ("\n");
+  if ( ind == -1 )
+      printf ("O problema é ilimitado.\n");
+    elseif (ind == 1 )
+      printf ("O problema é inviável.\n");
+    else
+      printf ("O problema é viável e a solução ótima tem custo: %.3f\n", B(1,1));
+      printf ("x = \n");
+      j = 1;
+      for i = 1:n
+        if ( i == indb(j) )
+          printf ("\t%.3f\n", B(j+1,1));
+          j++;
+        else
+          printf ("\t0.000\n");
+        endif
+      endfor
+    endif
 endfunction
 
 function iteration(B,indbase,j,l,iter,m,n)
