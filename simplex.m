@@ -29,14 +29,18 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
   auxA = [auxb,auxA];
   auxA = [auxc;auxA];
   
-  disp("\nSimplex: Fase 1\n")
+  if ( print == true )
+    disp("\nSimplex: Fase 1\n")
+  endif
   [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
   B = B(:,1:n+1);
   [B, indb, m] = removeslackformbase(B,m,n,indb);
   if (ind == -1 || B(1,1) > 0.0)
     ind = 1;
   else
-    disp("\nSimplex: Fase 2\n")
+    if ( print == true )
+      disp("\nSimplex: Fase 2\n")
+    endif
     auxc(1) = -(base(c,indb))'*B(2:m+1,1);
     auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
     B(1,:) = auxc;
@@ -140,7 +144,9 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
         ind = -1;
       else
         indbase(l-1) = j-1;
-        iteration(A,indbase,j,l,iter,m,n);
+        if ( print == true)
+          iteration(A,indbase,j,l,iter,m,n);
+        endif
         for i = 1:length(u)
           if ( i != l && u(i) != 0.0 )
             A(i,:) -= (u(i)/u(l))*A(l,:);
@@ -153,7 +159,9 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
   indb = indbase;
   x = A(2:m+1,1);
   B = A;
-  iteration(A,indbase,j,l,iter,m,n);
+  if ( print == true )
+    iteration(A,indbase,j,l,iter,m,n);
+  endif
 endfunction
 
 function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
