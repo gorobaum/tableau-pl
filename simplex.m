@@ -42,6 +42,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
       disp("\nSimplex: Fase 2\n")
     endif
     auxc(1) = -(base(c,indb))'*B(2:m+1,1);
+    B
     auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
     B(1,:) = auxc;
     [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
@@ -100,7 +101,7 @@ function iteration(B,indbase,j,l,iter,m,n)
       printf ("\t");
     endif
     for i = 2:length(B(1,:))
-      if ( k == l && i == j )
+      if ( l != 0 && k == l && i == j )
         aux = printf ("|%.3f*", B(k,i));
         if ( aux < 8 ) 
           printf ("\t");
@@ -123,6 +124,7 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
     iter++;
     j = 2;
     m = inm;
+    l = 0;
     while ( j <= length(A(1,:)) && A(1,j) >= 0.0 )
       j++;
     endwhile
@@ -130,7 +132,6 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
       stop = true;
       ind = 0;
     else
-      j;
       u = A(:,j);
       ratio = inf;
       for i = 2:length(u)
@@ -139,7 +140,7 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
           ratio = A(i,1)/u(i);
         endif
       endfor
-      if ( i == length(u)+1 && ratio == inf)
+      if ( ratio == inf)
         stop = true;
         ind = -1;
       else
