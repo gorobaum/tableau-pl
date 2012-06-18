@@ -33,16 +33,15 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     disp("\nSimplex: Fase 1\n")
   endif
   [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
-  B = B(:,1:n+1);
-  [B, indb, m] = removeslackformbase(B,m,n,indb);
-  if (ind == -1 || B(1,1) > 0.0)
+  if (ind == -1 || B(1,1) != 0.0)
     ind = 1;
   else
+    B = B(:,1:n+1);
+    [B, indb, m] = removeslackformbase(B,m,n,indb);
     if ( print == true )
       disp("\nSimplex: Fase 2\n")
     endif
-    auxc(1) = -(base(c,indb))'*B(2:m+1,1);
-    B
+    auxc(1) = -(base(c,indb))'*B(2:m+1,1)
     auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
     B(1,:) = auxc;
     [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
@@ -181,6 +180,14 @@ function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
           ind = [ind(1:i-2),ind(i:m)];
           m--;
         else
+          u = A(:,j);
+          for z = 1:length(u)
+            if ( z != i && u(z) != 0.0 )
+              A(z,:) -= (u(z)/u(i))*A(i,:);
+            endif
+          endfor
+          A(i,:) /= u(z);
+          disp("Fodeos");
         endif
       endif
     endfor
