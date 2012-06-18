@@ -41,7 +41,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     if ( print == true )
       disp("\nSimplex: Fase 2\n")
     endif
-    auxc(1) = -(base(c,indb))'*B(2:m+1,1)
+    auxc(1) = (base(c,indb))'*B(2:m+1,1)
     auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
     B(1,:) = auxc;
     [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
@@ -56,7 +56,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
       printf ("x = \n");
       j = 1;
       for i = 1:n
-        if ( i == indb(j) )
+        if ( j <= length(indb) && i == indb(j) )
           printf ("\t%.3f\n", B(j+1,1));
           j++;
         else

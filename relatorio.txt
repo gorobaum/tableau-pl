@@ -1,0 +1,36 @@
+EP3 de MAC0315
+
+Alunos:
+  Thiago de Gouviea Nunes   NUSP: 6979289
+  Wilson Kazuo Mizutani     NUSP: 6979230
+
+Relatório:
+  Implementamos o método do tableau. A função que o execulta é a runsimplex.
+  A função preparesimplex prepara o primeiro passo e trata a saída dos dois passos.
+  A função removeslackfrombase retira as variáveis de folga, se preciso, da base encontrada no final da fase 1.
+  A função iteration imprime o tableau.
+  A função base retorna os elementos do vetor que estão no indice do vetor b passado.
+
+
+Exemplos:
+
+1) Solução Ótima
+
+    min x1+x2
+    s.a. x1+x2 = 1
+         x1 >= 0
+         x2 >= 0
+
+2) Solução Ilimitada
+  
+    min -x2
+    s.a.  x1 = 1
+          x1 >= 0
+          x2 >= 0
+
+3) Solução inviável
+
+    min x1+x2
+    s.a.  x1+x2 = -1
+          x1 >= 0
+          x2 >= 0
