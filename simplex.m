@@ -24,8 +24,8 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
   
   I = eye(m);
   auxA = [auxA,I];
-  auxc(1) = -(base(cf1,indbase))'*auxb;
-  auxc = [auxc(1),cf1'-(base(cf1,indbase))'*auxA];
+  auxc(1) = -cf1(indbase)'*auxb;
+  auxc = [auxc(1),cf1'-cf1(indbase)'*auxA];
   auxA = [auxb,auxA];
   auxA = [auxc;auxA];
   
@@ -33,7 +33,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     disp("\nSimplex: Fase 1\n")
   endif
   [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
-  if (ind == -1 || B(1,1) != 0.0)
+  if (ind == -1 || abs(B(1,1)) < eps )
     ind = 1;
   else
     B = B(:,1:n+1);
@@ -41,8 +41,13 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     if ( print == true )
       disp("\nSimplex: Fase 2\n")
     endif
-    auxc(1) = (base(c,indb))'*B(2:m+1,1)
-    auxc = [auxc(1),c'-(base(c,indb))'*B(2:m+1,2:n+1)];
+    auxc = [];
+    auxc(1) = -c(indb)'*B(2:m+1,1)(indb)
+    for i = 2:length(B(2:m+1,:))
+      c(indb)'
+      B(2:m+1,i)
+      auxc = [auxc;c(i-1)-c(indb)'*B(2:m+1,i)]
+    endfor
     B(1,:) = auxc;
     [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
   endif
@@ -124,7 +129,7 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
     j = 2;
     m = inm;
     l = 0;
-    while ( j <= length(A(1,:)) && A(1,j) >= 0.0 )
+    while ( j <= length(A(1,:)) && A(1,j) >= 0 )
       j++;
     endwhile
     if ( j == length(A(1,:))+1 )
@@ -143,16 +148,16 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
         stop = true;
         ind = -1;
       else
-        indbase(l-1) = j-1;
         if ( print == true)
           iteration(A,indbase,j,l,iter,m,n);
         endif
+        indbase(l-1) = j-1;
+        A(l,:) /= u(l);
         for i = 1:length(u)
           if ( i != l && u(i) != 0.0 )
-            A(i,:) -= (u(i)/u(l))*A(l,:);
+            A(i,:) -= u(i)*A(l,:);
           endif
         endfor
-        A(l,:) /= u(l);
       endif
     endif
   endwhile
@@ -198,10 +203,11 @@ endfunction
 function ret = base(vec, b)
   j = 1;
   ret = [];
-  for i = 1:length(vec)
-    if ( j <= length(b) && i == b(j) )
-      ret = [ret;vec(i)];
-      j++;
-    endif
+  for i = 1:length(b)
+    for j = 1:length(vec)
+      if ( b(i) == j )
+        ret = [ret;j]
+      endif
+    endfor
   endfor
 endfunction
