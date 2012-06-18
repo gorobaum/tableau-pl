@@ -186,7 +186,7 @@ function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
               A(z,:) -= (u(z)/u(i))*A(i,:);
             endif
           endfor
-          A(i,:) /= u(z);
+          A(i,:) /= u(z)
           disp("Fodeos");
         endif
       endif
