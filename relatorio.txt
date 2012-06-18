@@ -10,7 +10,9 @@ Relatório:
   A função removeslackfrombase retira as variáveis de folga, se preciso, da base encontrada no final da fase 1.
   A função iteration imprime o tableau.
   A função base retorna os elementos do vetor que estão no indice do vetor b passado.
-
+  O programa recebe os vetores b e c como na notação do livro, ou seja, em coluna.
+  A regra de anti-ciclagem do menor indice foi utilizada, como pode ser visto pela escolha do custo, que para
+  no primeiro negativo, e na escolha da direção, que pega a com menor indice se duas tiverem o mesmo valor.
 
 Exemplos:
 

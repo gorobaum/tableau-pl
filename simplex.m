@@ -53,7 +53,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     elseif (ind == 1 )
       printf ("O problema é inviável.\n");
     else
-      printf ("O problema é viável e a solução ótima tem custo: %.3f\n", B(1,1));
+      printf ("O problema é viável e a solução ótima tem custo: %.3f\n", -B(1,1));
       printf ("x = \n");
       j = 1;
       indb = sort(indb);
