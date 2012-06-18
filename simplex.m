@@ -37,7 +37,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     ind = 1;
   else
     B = B(:,1:n+1);
-    [B, indb, m] = removeslackformbase(B,m,n,indb);
+    [B, indb, m] = removeslackfrombase(B,m,n,indb);
     if ( print == true )
       disp("\nSimplex: Fase 2\n")
     endif
@@ -164,30 +164,31 @@ function [ind, x, B, indb, m] = runsimplex(A,b,c,indbase,inm,n,print)
   endif
 endfunction
 
-function [B, ind, m] = removeslackformbase(A,inm,n,indbase)
+function [B, ind, m] = removeslackfrombase(A,inm,n,indbase)
   B = A;
   ind = indbase;
   m = inm;
-  for i = 2:m
-    for j = m+1:m+n
+  for i = 2:m+1
+    for j = m+2:m+n
       if (indbase(i-1) == j )
         k = 1;
-        while ( k <= length(A(i,:)) && A(i,k) == 0.0 )
+        B(i,:)
+        while ( k <= length(B(i,:)) && B(i,k) == 0.0 )
           k++;
         endwhile
-        if ( k == length(A(i+1,:))+1 )
+        if ( k == length(B(i,:))+1 )
           B = [B(1:i-1,:);B(i+1:m+1,:)];
           ind = [ind(1:i-2),ind(i:m)];
           m--;
         else
-          u = A(:,j);
+          u = B(:,j);
           for z = 1:length(u)
             if ( z != i && u(z) != 0.0 )
-              A(z,:) -= (u(z)/u(i))*A(i,:);
+              B(z,:) -= (u(z)/u(i))*B(i,:);
             endif
           endfor
-          A(i,:) /= u(z)
-          disp("Fodeos");
+          B(i,:) /= u(z);
+          ind(i-1) = i;
         endif
       endif
     endfor
