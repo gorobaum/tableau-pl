@@ -25,7 +25,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
   I = eye(m);
   auxA = [auxA,I];
   auxc(1) = -cf1(indbase)'*auxb;
-  auxc = [auxc(1),cf1'-cf1(indbase)'*auxA];
+  auxc = [auxc,cf1'-cf1(indbase)'*auxA];
   auxA = [auxb,auxA];
   auxA = [auxc;auxA];
   
@@ -33,7 +33,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     disp("\nSimplex: Fase 1\n")
   endif
   [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
-  if (ind == -1 || abs(B(1,1)) < eps )
+  if (ind == -1 || abs(B(1,1)) > eps )
     ind = 1;
   else
     B = B(:,1:n+1);
@@ -42,12 +42,8 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
       disp("\nSimplex: Fase 2\n")
     endif
     auxc = [];
-    auxc(1) = -c(indb)'*B(2:m+1,1)(indb)
-    for i = 2:length(B(2:m+1,:))
-      c(indb)'
-      B(2:m+1,i)
-      auxc = [auxc;c(i-1)-c(indb)'*B(2:m+1,i)]
-    endfor
+    auxc(1) = -c(indb)'*B(2:m+1,1);
+    auxc = [auxc,c'-c(indb)'*B(2:m+1,2:n+1)]
     B(1,:) = auxc;
     [ind, x, B, indb] = runsimplex(B,b,c,indb,m,n,print);
   endif
@@ -60,6 +56,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
       printf ("O problema é viável e a solução ótima tem custo: %.3f\n", B(1,1));
       printf ("x = \n");
       j = 1;
+      indb = sort(indb);
       for i = 1:n
         if ( j <= length(indb) && i == indb(j) )
           printf ("\t%.3f\n", B(j+1,1));
