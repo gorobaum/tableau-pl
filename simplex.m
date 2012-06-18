@@ -33,7 +33,7 @@ function [ind, x] = preparesimplex(A,b,c,m,n,print)
     disp("\nSimplex: Fase 1\n")
   endif
   [ind, x, B, indb, m] = runsimplex(auxA,auxb,auxc,indbase,m,m+n,print);
-  if (ind == -1 || abs(B(1,1)) > eps )
+  if (ind == -1 || abs(B(1,1)) >= 0.0001 )
     ind = 1;
   else
     B = B(:,1:n+1);
@@ -192,18 +192,6 @@ function [B, ind, m] = removeslackfrombase(A,inm,n,indbase)
           B(i,:) /= u(z);
           ind(i-1) = i;
         endif
-      endif
-    endfor
-  endfor
-endfunction
-
-function ret = base(vec, b)
-  j = 1;
-  ret = [];
-  for i = 1:length(b)
-    for j = 1:length(vec)
-      if ( b(i) == j )
-        ret = [ret;j]
       endif
     endfor
   endfor
